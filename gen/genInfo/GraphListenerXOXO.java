@@ -46,18 +46,16 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
 
 
     private int depth = 0;
-    private boolean connectSons = false;
-    //Verdadero cuando sale de un ciclo o condicional
     private Set<Node> visited = new HashSet<>();
     //Conjunto para la implementacion del DFS
-
-    private StringBuilder str = new StringBuilder();
 
     private Map<String,Node> myFunctions = new HashMap<>();
     //Grafo de funciones, key = NombreFuncion , value = grafo de la función
 
     private Stack<Node> currNode = new Stack<>();
     //Nodo sobre el que se está trabajando.
+
+    private Map<String,ArrayList<String>> functionGraph = new HashMap<>();
 
     private Stack<ArrayList<Node>> sons = new Stack<>();
     //Hijos que van a retornar al flujo principal
@@ -67,7 +65,6 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         if (visited.contains(node)) {
             return;
         }
-        //System.out.println(indent + node.toString());
         System.out.println(node.toString() + " : " + node.getNext().toString());
         visited.add(node);
         for (Node n : node.getNext()) {
@@ -80,14 +77,28 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         }
     }
 
+    private void DFSCreateGraph (Node node) {
+        if (visited.contains(node)) {
+            return;
+        }
+        functionGraph.put(node.getContent(),new ArrayList<>());
+        visited.add(node);
+        for (Node n : node.getNext()) {
+            functionGraph.get(node.getContent()).add(n.getContent());
+            DFSCreateGraph(n);
+        }
+    }
+
     public void myFunctionsPrint() {
         for (String key : myFunctions.keySet()) {
-            DFS(myFunctions.get(key),"");
+            DFS(myFunctions.get(key), "");
+            visited.clear();
         }
     }
 
     public void myFunctionsPrint(String key) {
         DFS(myFunctions.get(key),"");
+        visited.clear();
     }
 
 
@@ -117,6 +128,7 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
 
     @Override
     public void exitFunction_def_raw (PythonParser.Function_def_rawContext ctx) {
+        depth --;
         Node nNode = new Node("End");
         currNode.pop();
         ConnectSons(nNode);
@@ -240,9 +252,6 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         currNode.pop();
     }
 
-    @Override
-    public void exitElse_block (PythonParser.Else_blockContext ctx) {
-    }
 
     @Override
     public void exitIf_stmt (PythonParser.If_stmtContext ctx) {
@@ -255,6 +264,39 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
     @Override
     public void exitElif_stmt (PythonParser.Elif_stmtContext ctx) {
         currNode.pop();
+    }
+
+    private void fixGraph(Node node) {
+        boolean ok;
+        do {
+            ok = false;
+            for (int i = 0; i < node.getNext().size(); i++) {
+                if (node.getNext().get(i).getContent().equals("EndIf")) {
+                    ok = true;
+                    System.out.println("I am here\n");
+                    Node endif = node.getNext().get(i);
+                    node.getNext().remove(i--);
+                    for (int j = 0; j < endif.getNext().size(); j++) {
+                        node.getNext().add(endif.getNext().get(j));
+                    }
+                }
+            }
+        } while (ok);
+        for (int i = 0;i < node.getNext().size();i++) {
+            fixGraph(node.getNext().get(i));
+        }
+    }
+
+    public Map<String,ArrayList<String>> graphToString (String name) {
+        DFSCreateGraph(myFunctions.get(name));
+        Map<String,ArrayList<String>> ret = functionGraph;
+        visited.clear();
+        functionGraph.clear();
+        return ret;
+    }
+
+    public Set<String> functionList () {
+        return myFunctions.keySet();
     }
 
 
@@ -273,6 +315,9 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         ParseTreeWalker walker = new ParseTreeWalker();
         GraphListenerXOXO graphListener = new GraphListenerXOXO();
         walker.walk(graphListener, tree);
+        for (String key : graphListener.myFunctions.keySet()) {
+            graphListener.fixGraph(graphListener.myFunctions.get(key));
+        }
         graphListener.myFunctionsPrint();
         System.out.println(graphListener.myFunctions.toString());
     }
