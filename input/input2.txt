@@ -1,0 +1,32 @@
+import paquete2;
+
+public class HelloWorld {
+
+   private String nice;
+
+   public static void main(String[] args) {
+      avemria = a+b+1+2/6+getLoco(a+b);
+      System.out.pritnln(x);
+      bobo=c;
+      if(avemria>bobo){
+        System.out.println("Na");
+      }else{
+        System.out.println("Na2");
+      }
+      for(String x : arr){
+        System.out.pritnln(x);
+      }
+      System.out.println("Hello, World");
+   }
+
+   public static void main2() {
+         avemria = a+b+1+2/6+getLoco(a+b);
+         bobo=c;
+         System.out.println("Hello, World");
+     }
+
+   public static void main3(String nice2) {
+            this.nice=nice2;
+        }
+
+}
