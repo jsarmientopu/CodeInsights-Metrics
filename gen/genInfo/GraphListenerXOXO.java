@@ -44,6 +44,8 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         }
     }
 
+
+    private int depth = 0;
     private boolean connectSons = false;
     //Verdadero cuando sale de un ciclo o condicional
     private Set<Node> visited = new HashSet<>();
@@ -92,6 +94,7 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
 
     @Override
     public void enterFunction_def_raw (PythonParser.Function_def_rawContext ctx) {
+        depth ++;
         Node nNode = new Node(ctx.NAME().getText() + "(" + ctx.params().getText() + ")");
         myFunctions.put(ctx.NAME().getText(),nNode);
         currNode.push(myFunctions.get(ctx.NAME().getText()));
@@ -103,8 +106,11 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         for (int i = 0; i < sons.peek().size(); i++) {
             sons.peek().get(i).getNext().add(nNode);
         }
+        System.out.println(sons.peek());
         sons.pop();
         if (!nNode.getContent().equals("End")) {
+            currNode.pop();
+            currNode.push(nNode);
             sons.peek().set(sons.peek().size() - 1,nNode);
         }
     }
@@ -119,7 +125,8 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
 
     @Override
     public void enterSimple_stmt (PythonParser.Simple_stmtContext ctx) {
-        if (ctx.assignment() != null) {
+        if (depth == 0) { }
+        else if (ctx.assignment() != null) {
             Node nNode = new Node(ctx.assignment().getText());
             currNode.peek().getNext().add(nNode);
             sons.peek().set(sons.peek().size() - 1,nNode);
@@ -242,7 +249,6 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         Node nNode = new Node("EndIf");
         currNode.pop();
         ConnectSons(nNode);
-        System.out.println("HI" + sons.peek());
     }
 
 
