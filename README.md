@@ -53,3 +53,10 @@ En este caso se deben descargar los archivos correpondientes a la libreria y agr
    1. Visualizar grafo de clases del codigo fuente ingresado
    2. Ingresar a estadisticas de funciones personalizadas.
       1. En este apartado encontrara distintas metricas orientada a cada una de las funciones y se podra visualizar un grafo con el flujo de ejecucion de la funcion.
+
+
+# Desarrolladores
+
+- Juan Sebastian Sarmiento
+- Venus Baquero
+- Juan Carlos Prieto
