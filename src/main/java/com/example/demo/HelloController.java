@@ -90,7 +90,7 @@ public class HelloController {
     @FXML
     private Text duplicidadInt;
     @FXML
-    private Text duplicidadExt;
+    private TextArea duplicidadExt;
     @FXML
     private Text variablesLocal;
     @FXML

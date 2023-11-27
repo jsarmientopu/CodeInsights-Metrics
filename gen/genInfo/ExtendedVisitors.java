@@ -2234,6 +2234,8 @@ public class ExtendedVisitors<T> extends PythonParserBaseVisitor<T> implements P
                     //System.out.println("Fun1: "+val1);
                     //System.out.println("Fun2: "+val2);
                     double val = calculateJaccardSimilarity(val1,val2);
+                    functions.get(i).getDuplicityOtherFunc().put(functions.get(j),val);
+                    functions.get(j).getDuplicityOtherFunc().put(functions.get(i),val);
                     System.out.println("Function "+functions.get(i).getName()+" and function "+functions.get(j).getName()+":");
                     System.out.println("\t"+val);
                 }

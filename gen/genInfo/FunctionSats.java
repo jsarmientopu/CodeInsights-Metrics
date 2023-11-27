@@ -16,6 +16,7 @@ public class FunctionSats {
     private String[] code;
     private HashMap<String, String> rawCode;
     private HashMap<String, ArrayList<Double>> duplicity;
+    private HashMap<FunctionSats, Double> duplicityOtherFunc;
     private HashMap<String, String> localVar;
 
     public FunctionSats(String name){
@@ -31,6 +32,7 @@ public class FunctionSats {
         this.rawCode= new HashMap<>();
         this.duplicity = new HashMap<>();
         this.localVar = new HashMap<>();
+        this.duplicityOtherFunc = new HashMap<>();
     };
 
     public String getName() {
@@ -107,6 +109,10 @@ public class FunctionSats {
 
     public HashMap<String, String> getLocalVar() {
         return localVar;
+    }
+
+    public HashMap<FunctionSats, Double> getDuplicityOtherFunc() {
+        return duplicityOtherFunc;
     }
 
     public void printGraph(){
