@@ -28,6 +28,10 @@ public class CodeSatisticsVisitorJava<T> extends Java8ParserBaseVisitor<T> {
     private ArrayList<ClassStats> classes=new ArrayList<>();
     private double operants=0, ocurOperants=0, ocurOperators =0;
     private Set<String> operators= new HashSet<>();
+    private double length;
+    private double volumen;
+    private double difficulty;
+    private double time;
     @Override
     public T visitStatementExpression(Java8Parser.StatementExpressionContext ctx) {
         // Increment the node count for each simple statement
@@ -109,11 +113,14 @@ public class CodeSatisticsVisitorJava<T> extends Java8ParserBaseVisitor<T> {
         System.out.println("Total If Statements: " + totalIfStatements);
         System.out.println("Total For Statements: " + totalForStatements);
         System.out.println("Total While Statements: " + totalWhileStatements);
-        System.out.println("Program length: "+ (operators.size()+operants));
-        System.out.println("Program volume: "+ ((operators.size()+operants))* (Math.log(operators.size()+operants) / Math.log(2)));
-        System.out.println("Program difficult: "+ ((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants))));
-        System.out.println("Program effort time: "+ (((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants)))*(Math.log(operators.size()+operants) / Math.log(2))));
-
+        length=operators.size()+operants;
+        System.out.println("Program length: "+ length);
+        volumen=((operators.size()+operants)) * (Math.log(operators.size()+operants) / Math.log(2));
+        difficulty=((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants)));
+        time=(((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants)))*(Math.log(operators.size()+operants) / Math.log(2)));
+        System.out.println("Program volume: "+ volumen);
+        System.out.println("Program difficult: "+ difficulty);
+        System.out.println("Program effort time: "+ time);
         fixFunctions();
 
         getSimilar();
@@ -334,6 +341,7 @@ public class CodeSatisticsVisitorJava<T> extends Java8ParserBaseVisitor<T> {
 
     @Override
     public T visitIfThenElseStatement(Java8Parser.IfThenElseStatementContext ctx) {
+        totalIfStatements++;
         int prev=0;
         FunctionSats x = new FunctionSats("");
         if(!scope.isEmpty() && localTable.get(scope.peek())!=null){
@@ -548,6 +556,67 @@ public class CodeSatisticsVisitorJava<T> extends Java8ParserBaseVisitor<T> {
             scope.pop();
         }
         return null;
+    }
+
+    public int getTotalLines() {
+        return totalLines;
+    }
+
+    public int getTotalFunctions() {
+        return totalFunctions;
+    }
+
+    public int getTotalGlobalVariables() {
+        return totalGlobalVariables;
+    }
+
+    public int getTotalIfStatements() {
+        return totalIfStatements;
+    }
+
+    public int getTotalForStatements() {
+        return totalForStatements;
+    }
+
+    public int getTotalWhileStatements() {
+        return totalWhileStatements;
+    }
+
+    public double getTotalVariableNameLength() {
+        return totalVariableNameLength;
+    }
+
+    public double getTotalFunctionNameLength() {
+        return totalFunctionNameLength;
+    }
+
+    public Set<String> getGlobalVariables() {
+        return globalVariables;
+    }
+
+    public Set<String> getExternalDependencies() {
+        return externalDependencies;
+    }
+
+    public double getLength() {
+        return length;
+    }
+
+    public double getVolumen() {
+        return volumen;
+    }
+
+    public double getDifficulty() {
+        return difficulty;
+    }
+
+    public double getTime() {
+        return time;
+    }
+
+    // Helper method to calculate the average
+    private double calculateAverage(double totalLength, int totalCount) {
+        return totalCount > 0 ? ((double) totalLength) / totalCount : 0;
     }
 
     // Helper method to calculate the average

@@ -16,6 +16,8 @@ public class FunctionSats {
     private String[] code;
     private HashMap<String, String> rawCode;
     private HashMap<String, ArrayList<Double>> duplicity;
+    private HashMap<String, String> localVar;
+
     public FunctionSats(String name){
         this.name=name;
         this.ciclomatic=0;
@@ -28,6 +30,7 @@ public class FunctionSats {
         this.time="";
         this.rawCode= new HashMap<>();
         this.duplicity = new HashMap<>();
+        this.localVar = new HashMap<>();
     };
 
     public String getName() {
@@ -100,6 +103,10 @@ public class FunctionSats {
 
     public HashMap<String, ArrayList<Double>> getDuplicity() {
         return duplicity;
+    }
+
+    public HashMap<String, String> getLocalVar() {
+        return localVar;
     }
 
     public void printGraph(){

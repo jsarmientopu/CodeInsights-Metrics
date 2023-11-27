@@ -1,16 +1,278 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.layout.VBox?>
-
 <?import javafx.scene.control.Button?>
-<VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.demo.HelloController">
-  <padding>
-    <Insets bottom="20.0" left="20.0" right="20.0" top="20.0"/>
-  </padding>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-  <Label fx:id="welcomeText"/>
-  <Button text="Hello!" onAction="#onHelloButtonClick"/>
-</VBox>
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="635.0" prefWidth="861.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.demo.HelloController">
+   <children>
+      <Pane layoutX="-3.0" prefHeight="635.0" prefWidth="871.0" style="-fx-background-color: black;">
+         <children>
+            <Pane fx:id="vista2" layoutX="-1.0" layoutY="38.0" prefHeight="582.0" prefWidth="871.0" style="-fx-background-color: white;" visible="false">
+               <children>
+                  <Pane layoutY="4.0" prefHeight="26.0" prefWidth="871.0" style="-fx-background-color: #2B2A4C;" />
+                  <TextArea fx:id="codigoInsertar" layoutX="20.0" layoutY="158.0" prefHeight="411.0" prefWidth="281.0" style="-fx-border-style: solid;" />
+                  <ChoiceBox fx:id="funciones" layoutX="626.0" layoutY="154.0" prefHeight="36.0" prefWidth="171.0" />
+                  <Text layoutX="601.0" layoutY="109.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Selecione una funcion">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+                  <Button fx:id="analizarFuncion" layoutX="657.0" layoutY="210.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="94.0" text="Analizar" />
+                  <Text layoutX="28.0" layoutY="124.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Codigo">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="321.0" layoutY="106.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Estadisticas">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="330.0" layoutY="183.0" strokeType="OUTSIDE" strokeWidth="0.0" text="# Lineas">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="lineasCodigo" layoutX="330.0" layoutY="211.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="funcionesCodigo" layoutX="330.0" layoutY="236.0" strokeType="OUTSIDE" strokeWidth="0.0" text="# Funciones">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="funcionesCodigo" layoutX="330.0" layoutY="264.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="330.0" layoutY="292.0" strokeType="OUTSIDE" strokeWidth="0.0" text="# Variables Globales">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="variablesGlobales" layoutX="330.0" layoutY="320.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="330.0" layoutY="357.0" strokeType="OUTSIDE" strokeWidth="0.0" text="# Ifs">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="numeroIfs" layoutX="330.0" layoutY="385.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="330.0" layoutY="421.0" strokeType="OUTSIDE" strokeWidth="0.0" text="# Fors">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="numeroFors" layoutX="330.0" layoutY="449.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="323.0" layoutY="488.0" strokeType="OUTSIDE" strokeWidth="0.0" text="# Whiles">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="numeroWhiles" layoutX="330.0" layoutY="515.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="542.0" layoutY="367.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" X̅ Programa">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="promedioPrograma" layoutX="576.0" layoutY="394.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="542.0" layoutY="432.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" X̅ Nombre Variables">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="promedioVariables" layoutX="576.0" layoutY="458.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="542.0" layoutY="499.0" strokeType="OUTSIDE" strokeWidth="0.0" text=" X̅ Nombre Funciones">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="promedioFunciones" layoutX="570.0" layoutY="527.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="752.0" layoutY="367.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Volumen">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="volumen" layoutX="752.0" layoutY="395.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="752.0" layoutY="431.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dificultad">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="dificultad" layoutX="752.0" layoutY="459.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="752.0" layoutY="497.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tiempo">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="tiempo" layoutX="752.0" layoutY="525.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="540.0" layoutY="309.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Longitudes">
+                     <font>
+                        <Font size="24.0" />
+                     </font>
+                  </Text>
+                  <ImageView fx:id="primerAtras" fitHeight="61.0" fitWidth="80.0" layoutY="30.0" pickOnBounds="true" preserveRatio="true" visible="false">
+                     <image>
+                        <Image url="@../../../../../../../../Downloads/WhatsApp%20Image%202023-11-26%20at%206.15.55%20PM.jpeg" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="Atras5" layoutX="39.0" layoutY="48.0" mnemonicParsing="false" text="Atras" />
+               </children>
+            </Pane>
+            <Pane fx:id="vista3" layoutX="-1.0" layoutY="48.0" prefHeight="582.0" prefWidth="871.0" style="-fx-background-color: white;" visible="false">
+               <children>
+                  <Pane layoutY="4.0" prefHeight="26.0" prefWidth="871.0" style="-fx-background-color: #2B2A4C;" />
+                  <TextArea fx:id="dependencias" layoutX="20.0" layoutY="158.0" prefHeight="411.0" prefWidth="281.0" style="-fx-border-style: solid;" />
+                  <Text layoutX="663.0" layoutY="260.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Generar diagrama">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+                  <Button layoutX="712.0" layoutY="304.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="84.0" text="Analizar" />
+                  <Text layoutX="32.0" layoutY="106.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dependencias">
+                     <font>
+                        <Font size="23.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="335.0" layoutY="206.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Complejidad ciclomatica">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="complejidadCiclo" layoutX="335.0" layoutY="234.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="335.0" layoutY="259.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Duplicidad con las otras funciones">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="duplicidadExt" layoutX="335.0" layoutY="287.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="335.0" layoutY="315.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Duplicidad en el interior del codigo">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="duplicidadInt" layoutX="335.0" layoutY="343.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="335.0" layoutY="380.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Variables locales">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="variablesLocal" layoutX="335.0" layoutY="408.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <Text layoutX="335.0" layoutY="444.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Indice de estabilidad">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Text>
+                  <Text fx:id="indiceEstabilidad" layoutX="335.0" layoutY="472.0" strokeType="OUTSIDE" strokeWidth="0.0" text="A">
+                     <font>
+                        <Font size="17.0" />
+                     </font>
+                  </Text>
+                  <ImageView fx:id="segundoAtras" fitHeight="61.0" fitWidth="80.0" layoutX="2.0" layoutY="23.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../../Downloads/WhatsApp%20Image%202023-11-26%20at%206.15.55%20PM.jpeg" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="Atras6" layoutX="104.0" layoutY="41.0" mnemonicParsing="false" text="Atras6" />
+               </children>
+            </Pane>
+            <Pane fx:id="vista1" layoutX="9.0" layoutY="48.0" prefHeight="582.0" prefWidth="861.0" style="-fx-background-color: white;">
+               <children>
+                  <TextArea fx:id="insercionCodigo" layoutX="20.0" layoutY="220.0" prefHeight="349.0" prefWidth="405.0" style="-fx-border-style: solid;" />
+                  <ChoiceBox fx:id="seleccionLenguajes" layoutX="525.0" layoutY="303.0" prefHeight="36.0" prefWidth="171.0" />
+                  <Button fx:id="analizarCodigo" layoutX="563.0" layoutY="358.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="94.0" text="Analizar" />
+                  <Text layoutX="491.0" layoutY="251.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Analizar Codigo">
+                     <font>
+                        <Font size="34.0" />
+                     </font>
+                  </Text>
+                  <Pane layoutX="-6.0" prefHeight="26.0" prefWidth="871.0" style="-fx-background-color: #2B2A4C;" />
+                  <Pane layoutX="-5.0" layoutY="112.0" prefHeight="9.0" prefWidth="871.0" style="-fx-background-color: #2B2A4C;" />
+                  <Pane layoutX="-7.0" layoutY="130.0" prefHeight="15.0" prefWidth="871.0" style="-fx-background-color: B31312;" />
+                  <Pane layoutX="-4.0" layoutY="144.0" prefHeight="9.0" prefWidth="871.0" style="-fx-background-color: #2B2A4C;" />
+                  <Text layoutX="323.0" layoutY="90.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Insights Metrics">
+                     <font>
+                        <Font size="46.0" />
+                     </font>
+                  </Text>
+                  <ImageView fitHeight="84.0" fitWidth="118.0" layoutX="214.0" layoutY="26.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../../../../../../../../Downloads/1.jpeg" />
+                     </image>
+                  </ImageView>
+                  <Text layoutX="20.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Codigo">
+                     <font>
+                        <Font size="30.0" />
+                     </font>
+                  </Text>
+               </children>
+            </Pane>
+         </children>
+      </Pane>
+   </children>
+</AnchorPane>

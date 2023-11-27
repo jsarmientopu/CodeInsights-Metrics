@@ -14,8 +14,8 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
     private int totalIfStatements = 0;
     private int totalForStatements = 0;
     private int totalWhileStatements = 0;
-    private int totalVariableNameLength = 0;
-    private int totalFunctionNameLength = 0;
+    private double totalVariableNameLength = 0;
+    private double totalFunctionNameLength = 0;
     private int totalVariables = 0;
     private int totalFunctionsVisited = 0;
     private Set<String> globalVariables = new HashSet<>();
@@ -29,6 +29,10 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
     private double operants=0, ocurOperants=0, ocurOperators =0;
     private Set<String> operators= new HashSet<>();
     private StringBuffer code = new StringBuffer();
+    private double length;
+    private double volumen;
+    private double difficulty;
+    private double time;
     @Override
     public T visitSimple_stmt(PythonParser.Simple_stmtContext ctx) {
         // Increment the node count for each simple statement
@@ -63,6 +67,8 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
 
         double averageVariableNameLength = calculateAverage(totalVariableNameLength, totalVariables);
         double averageFunctionNameLength = calculateAverage(totalFunctionNameLength, totalFunctionsVisited);
+        totalVariableNameLength=averageVariableNameLength;
+        totalFunctionNameLength=averageFunctionNameLength;
         System.out.println(averageFunctionNameLength);
         System.out.println(averageVariableNameLength);
         // Print the collected statistics
@@ -73,10 +79,14 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
         System.out.println("Total If Statements: " + totalIfStatements);
         System.out.println("Total For Statements: " + totalForStatements);
         System.out.println("Total While Statements: " + totalWhileStatements);
-        System.out.println("Program length: "+ (operators.size()+operants));
-        System.out.println("Program volume: "+ ((operators.size()+operants))* (Math.log(operators.size()+operants) / Math.log(2)));
-        System.out.println("Program difficult: "+ ((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants))));
-        System.out.println("Program effort time: "+ (((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants)))*(Math.log(operators.size()+operants) / Math.log(2))));
+        length=operators.size()+operants;
+        System.out.println("Program length: "+ length);
+        volumen=((operators.size()+operants)) * (Math.log(operators.size()+operants) / Math.log(2));
+        difficulty=((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants)));
+        time=(((1.0/2.0)*((operators.size()/ocurOperators)+(operants/ocurOperants)))*(Math.log(operators.size()+operants) / Math.log(2)));
+        System.out.println("Program volume: "+ volumen);
+        System.out.println("Program difficult: "+ difficulty);
+        System.out.println("Program effort time: "+ time);
 
         fixFunctions();
 
@@ -500,9 +510,64 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
         return null;
     }
 
+    public int getTotalLines() {
+        return totalLines;
+    }
+
+    public int getTotalFunctions() {
+        return totalFunctions;
+    }
+
+    public int getTotalGlobalVariables() {
+        return totalGlobalVariables;
+    }
+
+    public int getTotalIfStatements() {
+        return totalIfStatements;
+    }
+
+    public int getTotalForStatements() {
+        return totalForStatements;
+    }
+
+    public int getTotalWhileStatements() {
+        return totalWhileStatements;
+    }
+
+    public double getTotalVariableNameLength() {
+        return totalVariableNameLength;
+    }
+
+    public double getTotalFunctionNameLength() {
+        return totalFunctionNameLength;
+    }
+
+    public Set<String> getGlobalVariables() {
+        return globalVariables;
+    }
+
+    public Set<String> getExternalDependencies() {
+        return externalDependencies;
+    }
+
+    public double getLength() {
+        return length;
+    }
+
+    public double getVolumen() {
+        return volumen;
+    }
+
+    public double getDifficulty() {
+        return difficulty;
+    }
+
+    public double getTime() {
+        return time;
+    }
 
     // Helper method to calculate the average
-    private double calculateAverage(int totalLength, int totalCount) {
+    private double calculateAverage(double totalLength, int totalCount) {
         return totalCount > 0 ? ((double) totalLength) / totalCount : 0;
     }
 
@@ -579,6 +644,16 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
                 }
             }
             function.getDependencies().addAll(dependencies);
+        }
+        for(String depend : localTable.keySet()){
+            FunctionSats function = new FunctionSats("");
+            for(FunctionSats func : functions){
+                if(func.getName().equals(depend)){
+                    function = func;;
+                    break;
+                }
+            }
+            function.getLocalVar().putAll(localTable.get(depend));
         }
         for(FunctionSats func: functions) {
             System.out.println(func.getName());
