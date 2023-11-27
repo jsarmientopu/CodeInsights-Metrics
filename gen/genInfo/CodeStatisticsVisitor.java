@@ -4,10 +4,31 @@ import com.github.difflib.text.DiffRow;
 import com.github.difflib.text.DiffRowGenerator;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.TerminalNode;
+import java.util.regex.Pattern;
+import static java.util.Map.entry;
+import java.util.stream.Collectors;
 
 import java.util.*;
 
 public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
+
+
+    String camelCaseRegex = "^[a-z][a-zA-Z0-9]*$";
+    String snakeCaseRegex = "^[a-z][a-z0-9_]*$";
+    String builtinFunction=  "^__[a-zA-Z_]\\w*__$";
+
+    private Map<Integer, String> caseStyle = Map.ofEntries(
+            entry(1,"Camel Case"),
+            entry(2,"Snake Case"),
+            entry(3,"Other Style")
+    );
+    private ArrayList<ArrayList<Integer>> varPattern = new ArrayList<>(4) {{
+        add(new ArrayList<>());
+        add(new ArrayList<>());
+        add(new ArrayList<>());
+        add(new ArrayList<>());
+    }};
+    private Map<String, List<Integer>> variableCounter = new HashMap<>();
     private int totalLines = 0;
     private int totalFunctions = 0;
     private int totalGlobalVariables = 0;
@@ -103,13 +124,36 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
     @Override
     public T visitStar_atom(PythonParser.Star_atomContext ctx) {
         if(ctx.NAME()!=null){
+            boolean exists = false;
             if(scope.isEmpty() || simbolTable.get(scope.peek())==null){
-                simbolTable.put(ctx.NAME().getText(),"Simple variable");
+                if(simbolTable.get(ctx.NAME().getText()) == null){
+                    //System.out.println("En symbol table");
+                    simbolTable.put(ctx.NAME().getText(),"Simple variable");
+                }else{
+                    exists = true;
+                }
             }else if(localTable.get(scope.peek())!=null){
-                localTable.get(scope.peek()).putIfAbsent(ctx.NAME().getText(),"Simple variable");
+                if(localTable.get(ctx.NAME().getText()) == null){
+                    //System.out.println("En local table");
+                    localTable.get(scope.peek()).putIfAbsent(ctx.NAME().getText(),"Simple variable");
+                }else{
+                    exists = true;
+                }
             }
-            totalVariableNameLength += ctx.NAME().getText().length();
-            totalVariables++;
+            if(!exists){
+                List<Integer> aux = new ArrayList<>();
+                aux.add(1);
+                aux.add(ctx.getStop().getLine());
+                variableCounter.put(ctx.NAME().getText(), aux);
+                totalVariableNameLength += ctx.NAME().getText().length();
+                totalVariables++;
+
+                checkStyle(ctx.NAME().getText(), false, ctx.getStart().getLine());
+            }else{
+                List<Integer> modified = variableCounter.get(ctx.NAME().getText());
+                modified.set(0,modified.get(0)+1);
+                variableCounter.put(ctx.NAME().getText(), modified);
+            }
         }
         operants++;
         return visitChildren(ctx);
@@ -122,6 +166,12 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
             if (!scope.isEmpty() && localTable.get(scope.peek())!=null && simbolTable.get(functionName)!=null && simbolTable.get(functionName).equals("function") && !functionName.equals(scope.peek())) {
                 // Add the called function to the dependencies
                 functionDependencies.get(scope.peek()).add(functionName);
+            }else if(variableCounter.containsKey(functionName)){
+                // check if used as argument
+                // helps in checking unused of variables
+                List<Integer> modified = variableCounter.get(ctx.NAME().getText());
+                modified.set(0,modified.get(0)+1);
+                variableCounter.put(ctx.NAME().getText(), modified);
             }else if(!scope.isEmpty() && localTable.get(scope.peek())!=null){
                 for(String dependency: externalDependencies){
                     String val = dependency.split("\\.")[dependency.split("\\.").length-1];
@@ -175,7 +225,7 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
         scope.push(currentFunction);
         functionDependencies.put(currentFunction, new HashSet<>());
         System.out.println("Visited Function Definition: " + currentFunction);
-
+        checkStyle(currentFunction, true, ctx.function_def_raw().getStart().getLine());
         // You can add more logic here for function-specific statistics
         visitChildren(ctx);
 
@@ -710,6 +760,84 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
                 }
             }
         }
+    }
+
+    public Map<String, Integer> getUnusedVariables(){
+        /*
+         * Function that builds an ordered map (by line number) with the variables that
+         * where used only one time (when declared), so its value is never used after in the
+         * program's logic.
+         *
+         * */
+        Map<String, Integer> unused = new HashMap<>();
+
+        //get map from variableCounter
+        for(String key: variableCounter.keySet()){
+            if(variableCounter.get(key).get(0) == 1){
+                unused.put(key, variableCounter.get(key).get(1) );
+            }
+        }
+
+        //order map
+        Map<String, Integer> ordered = unused.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue())
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1, // Si hay duplicados, mantener el valor existente
+                        LinkedHashMap::new // Mantener el orden de inserción
+                ));
+
+
+        if(!ordered.isEmpty()) printUnused(ordered);
+        return ordered;
+    }
+
+    private void printUnused(Map<String, Integer> unused){
+        System.out.println("The following variables are not being used after declaration:");
+        for(String key: unused.keySet()){
+            System.out.println("Variable "+key+" declared in line "+ unused.get(key));
+        }
+    }
+
+    private void checkStyle(String s, boolean isFunc, int line){
+        if(isFunc && s.matches(builtinFunction)){
+            return;
+        }
+        if(s.matches(camelCaseRegex) && s.matches(snakeCaseRegex)){
+            varPattern.get(0).add(line);
+        }else if(s.matches(camelCaseRegex)){
+            varPattern.get(1).add(line);
+        }else if (s.matches(snakeCaseRegex)) {
+            varPattern.get(2).add(line);
+        }else {
+            varPattern.get(3).add(line);
+        }
+    }
+
+    public ArrayList<ArrayList<Integer>> styleStats(){
+        int camel = varPattern.get(1).size();
+        int snake = varPattern.get(2).size();
+        int other = varPattern.get(3).size();
+
+        boolean valid = false;
+
+        if(camel > 0 && snake > 0) valid = true;
+        if(camel > 0 && other > 0) valid = true;
+        if(other > 0 && snake > 0) valid = true;
+
+        if(valid){
+            System.out.println("You are using different conventions for naming your variables," +
+                    " try refactoring them.");
+            for(int i = 1 ; i < varPattern.size() ; i++){
+                if(varPattern.get(i).size() > 0 ){
+                    System.out.println("Variables and functions named in " + caseStyle.get(i) +
+                            ": "+ varPattern.get(i).size() + " "+varPattern.get(i).toString());
+                }
+            }
+        }
+
+        return varPattern;
     }
 
     public ArrayList<FunctionSats> getFunctions() {

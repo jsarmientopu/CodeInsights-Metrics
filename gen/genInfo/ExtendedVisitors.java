@@ -455,7 +455,7 @@ public class ExtendedVisitors<T> extends PythonParserBaseVisitor<T> implements P
         }
         codeAux.append(") ");
         if(ctx.expression()!=null){
-            codeAux.append("-> "+((String) visitParams(ctx.params())));
+            codeAux.append("-> "+((String) visitExpression(ctx.expression())));
         }
         codeAux.append(": ");
         if(ctx.func_type_comment()!=null){

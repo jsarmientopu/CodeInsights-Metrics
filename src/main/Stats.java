@@ -13,6 +13,7 @@ import org.antlr.v4.runtime.CodePointCharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
 import org.antlr.v4.runtime.tree.ParseTreeWalker;
+import org.graphstream.util.GraphListeners;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -22,6 +23,7 @@ import java.util.*;
 public class Stats {
 
     private CharStream text;
+    private CharStream text1;
     private String type;
     private int totalLines = 0;
     private int totalFunctions = 0;
@@ -49,12 +51,21 @@ public class Stats {
     private double difficulty;
     private double time;
 
+    private GraphListenerXOXO graph;
+    private FlowChartJava graphJava;
+    private InheritanceListenerXOXO classGraph;
+    private Set<String> functionsGraph;
+
+    private Map<String, Integer> unusedVar = new HashMap<>();
+    private ArrayList<ArrayList<Integer>> naming = new ArrayList<>();
+
     public Stats(String code, String type){
         try{
             FileWriter myObj = new FileWriter("input.txt");
             myObj.write(code);
             myObj.close();
             this.text= CharStreams.fromFileName("input.txt");
+            this.text1=CharStreams.fromFileName("input.txt");
         } catch (IOException e) {
             System.out.println("An error occurred.");
         }
@@ -65,8 +76,7 @@ public class Stats {
     public boolean getStats(){
         try{
             if(this.type.equals("Python")){
-                System.out.println(this.text);
-                PythonLexer lexer=new PythonLexer(this.text);
+                PythonLexer lexer=new PythonLexer(CharStreams.fromFileName("input.txt"));
                 CommonTokenStream tokens = new CommonTokenStream(lexer);
                 PythonParser parser = new PythonParser(tokens);
                 ParseTree newTree = parser.file_input();
@@ -87,21 +97,26 @@ public class Stats {
                 System.out.println(loader1.getFunctionsLocal());
                 System.out.println(loader1.getFunctionsDependency());
                 System.out.println(loader1.getExternalDependency());
+                unusedVar = loader1.getUnusedVariables();
+                naming = loader1.styleStats();
                 System.out.println("----------------------------");
-                PythonLexer lexer2=new PythonLexer(this.text);
+                this.text1= this.text;
+                PythonLexer lexer2=new PythonLexer(CharStreams.fromFileName("input.txt"));
                 CommonTokenStream tokens2 = new CommonTokenStream(lexer2);
                 PythonParser parser2 = new PythonParser(tokens2);
                 ExtendedVisitors visitor1 = new ExtendedVisitors();
                 visitor1.setFunctions(loader1.getFunctions());
                 visitor1.visit(parser2.file_input());
+                this.functionsGraph = executeGraph(this.text);
             }else{
-                Java8Lexer javaLexer=new Java8Lexer(this.text);
+                Java8Lexer javaLexer=new Java8Lexer(CharStreams.fromFileName("input.txt"));
                 // Identificar al analizador léxico como fuente de tokens para el sintactico
                 CommonTokenStream javaTokens = new CommonTokenStream(javaLexer);
                 // Crear el objeto del analizador sintáctico a partir del buffer de tokens
                 Java8Parser javaParser = new Java8Parser(javaTokens);
                 ParseTree tree = javaParser.compilationUnit();
                 CodeSatisticsVisitorJava loader = new CodeSatisticsVisitorJava();
+                System.out.println(tree.toStringTree());
                 loader.visit(tree);
                 System.out.println(loader.getFunctionsLocal());
                 System.out.println(loader.getFunctionsDependency());
@@ -119,28 +134,68 @@ public class Stats {
                 volumen=roundAvoid(loader.getVolumen(), 4);
                 difficulty= roundAvoid(loader.getDifficulty(), 4);
                 time=roundAvoid(loader.getTime(),4);
-                Java8Lexer lexer2Java=new Java8Lexer(this.text);
+                Java8Lexer lexer2Java=new Java8Lexer(CharStreams.fromFileName("input.txt"));
                 CommonTokenStream tokens2Java = new CommonTokenStream(lexer2Java);
                 Java8Parser parser2Java = new Java8Parser(tokens2Java);
                 ExtendedVisitorsJava visitor1Java = new ExtendedVisitorsJava();
                 visitor1Java.setFunctions(loader.getFunctions());
+                System.out.println(parser2Java.compilationUnit());
                 visitor1Java.visit(parser2Java.compilationUnit());
                 System.out.println("----------------------------");
-                Java8Lexer lexer3Java=new Java8Lexer(this.text);
-                CommonTokenStream tokens3Java = new CommonTokenStream(lexer3Java);
-                Java8Parser parser3Java = new Java8Parser(tokens3Java);
-                ParseTree tree3 = parser3Java.compilationUnit();
-                ParseTreeWalker walker = new ParseTreeWalker();
-                FlowChartJava graphListener = new FlowChartJava();
-                walker.walk(graphListener, tree3);
-                graphListener.myFunctionsPrint();
-                System.out.println(graphListener.myFunctions.toString());
+                this.functionsGraph = executeGraph(this.text);
             }
             return true;
         } catch (Exception e){
             System.err.println("Error (Test): " + e);
             return false;
         }
+    }
+
+    public Set<String> executeGraph(CharStream code) throws Exception {
+        if(this.type.equals("Python")){
+            PythonLexer lexer = new PythonLexer(CharStreams.fromFileName("input.txt"));
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            PythonParser parser = new PythonParser(tokens);
+            ParseTree tree = parser.file_input();
+            ParseTreeWalker walker = new ParseTreeWalker();
+            GraphListenerXOXO graphListener = new GraphListenerXOXO();
+            walker.walk(graphListener, tree);
+            this.graph=graphListener;
+            for (String key : graphListener.myFunctions.keySet()) {
+                graphListener.fixGraph(graphListener.myFunctions.get(key));
+            }
+            graphListener.myFunctionsPrint();
+            System.out.println(graphListener.myFunctions.toString());
+            return graphListener.myFunctions.keySet();
+        }else{
+            Java8Lexer lexer = new Java8Lexer(CharStreams.fromFileName("input.txt"));
+            CommonTokenStream tokens = new CommonTokenStream(lexer);
+            Java8Parser parser = new Java8Parser(tokens);
+            ParseTree tree = parser.compilationUnit();
+            ParseTreeWalker walker = new ParseTreeWalker();
+            FlowChartJava graphListener = new FlowChartJava();
+            //walker.walk(graphListener, tree);
+            //this.graphJava=graphListener;
+            //for (String key : graphListener.myFunctions.keySet()) {
+            //    graphListener.fixGraph(graphListener.myFunctions.get(key));
+            //}
+            //graphListener.myFunctionsPrint();
+            //System.out.println(graphListener.myFunctions.toString());
+            //return graphListener.myFunctions.keySet();
+        }
+        return null;
+    }
+
+    public void executeClassGraph() throws Exception {
+        PythonLexer lexer = new PythonLexer(CharStreams.fromFileName("input.txt"));
+        CommonTokenStream tokens = new CommonTokenStream(lexer);
+        PythonParser parser = new PythonParser(tokens);
+        ParseTree tree = parser.file_input();
+        ParseTreeWalker walker = new ParseTreeWalker();
+        InheritanceListenerXOXO treeListener = new InheritanceListenerXOXO();
+        walker.walk(treeListener, tree);
+        treeListener.printTree();
+        this.classGraph=treeListener;
     }
 
     public int getTotalLines() {
@@ -199,9 +254,44 @@ public class Stats {
         return time;
     }
 
+    public GraphListenerXOXO getGraph() {
+        return graph;
+    }
+
+    public Set<String> getFunctionsGraph() {
+        return functionsGraph;
+    }
+
+    public InheritanceListenerXOXO getClassGraph() {
+        return classGraph;
+    }
+
+    public FlowChartJava getGraphJava() {
+        return graphJava;
+    }
+
+    public String getType() {
+        return type;
+    }
+
     public static double roundAvoid(double value, int places) {
         double scale = Math.pow(10, places);
         return Math.round(value * scale) / scale;
     }
+
+    public String getUnusedVar(){
+        StringBuilder sb = new StringBuilder();
+        if(unusedVar.isEmpty()){
+            sb.append("No hay variables sin usar.");
+        }else{
+            for(String key: unusedVar.keySet()){
+                sb.append(key+" : linea "+ unusedVar.get(key)+"\n");
+            }
+        }
+
+        return sb.toString();
+    }
+
+
 
 }

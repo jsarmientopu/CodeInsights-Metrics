@@ -1,7 +1,9 @@
 package com.example.demo;
 
 import genInfo.CodeStatisticsVisitor;
+import genInfo.FlowChartJava;
 import genInfo.FunctionSats;
+import genInfo.GraphListenerXOXO;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.Parent;
@@ -21,12 +23,17 @@ import main.Stats;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
+import org.graphstream.graph.Graph;
 import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.graph.implementations.SingleGraph;
 import org.graphstream.ui.fx_viewer.FxViewPanel;
 import org.graphstream.ui.fx_viewer.FxViewer;
 import org.graphstream.ui.javafx.FxGraphRenderer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class HelloController {
@@ -88,15 +95,19 @@ public class HelloController {
     @FXML
     private Text complejidadCiclo;
     @FXML
-    private Text duplicidadInt;
+    private TextArea duplicidadInt;
     @FXML
     private TextArea duplicidadExt;
     @FXML
-    private Text variablesLocal;
+    private TextArea variablesLocal;
     @FXML
     private Text indiceEstabilidad;
     @FXML
     private Button generarDiagrama;
+    @FXML
+    private TextArea noUsed;
+    @FXML
+    private Button graficoHerencia;
     private Stats stats;
     private FunctionSats function;
 
@@ -110,6 +121,7 @@ public class HelloController {
         Atras5.setOnAction(this::primerAtras);
         Atras6.setOnAction(this::segundoAtras);
         generarDiagrama.setOnAction(this::generateGraph);
+        graficoHerencia.setOnAction(this::generateClassGraph);
     }
     @FXML
     private void analizarCodigo(ActionEvent event) {
@@ -123,14 +135,14 @@ public class HelloController {
             vista3.setVisible(false);
             lineasCodigo.setText(String.valueOf(x.getTotalLines()));
             StringBuffer func = new StringBuffer();
-            for(FunctionSats fun: x.getFunctions()){
-                func.append(fun.getName()+", ");
-            }
-            if(!x.getFunctions().isEmpty()){
-                func.delete(func.length()-2, func.length());
-            }
-            func.delete(func.length()-2, func.length());
-            funcionesCodigo.setText(func.toString());
+            //for(FunctionSats fun: x.getFunctions()){
+            //    func.append(fun.getName()+", ");
+            //}
+            //if(!x.getFunctions().isEmpty()){
+            //    func.delete(func.length()-2, func.length());
+            //}
+            //func.delete(func.length()-2, func.length());
+            funcionesCodigo.setText(String.valueOf(stats.getFunctions().size()));
             StringBuffer globals = new StringBuffer();
             for(String glob : x.getGlobalVariables()){
                 globals.append(glob+", ");
@@ -150,6 +162,7 @@ public class HelloController {
             tiempo.setText(String.valueOf(x.getTime()));
             funciones.getItems().clear();
             funciones.getItems().addAll(x.getFunctions().stream().map(e -> e.getName()).toArray());
+            noUsed.setText(stats.getUnusedVar());
         }else{
             insercionCodigo.setText("Intenta de nuevo, el analisis falló");
         }
@@ -171,9 +184,14 @@ public class HelloController {
             complejidadCiclo.setText(String.valueOf(function.getCiclomatic()));
             StringBuffer localVar = new StringBuffer();
             for(String var : function.getLocalVar().keySet()){
-                localVar.append(var+"->"+function.getLocalVar().get(var)+"  ");
+                localVar.append(var+"->"+function.getLocalVar().get(var)+" \n");
             }
             variablesLocal.setText(localVar.toString());
+            StringBuffer duplicity = new StringBuffer();
+            for(FunctionSats func : function.getDuplicityOtherFunc().keySet()){
+                duplicity.append(func.getName()+"->"+String.valueOf(function.getDuplicityOtherFunc().get(func))+" \n");
+            }
+            duplicidadExt.setText(duplicity.toString());
             indiceEstabilidad.setText(String.valueOf(0));
             vista1.setVisible(false);
             vista2.setVisible(false);
@@ -195,26 +213,85 @@ public class HelloController {
 
     @FXML
     private void generateGraph(ActionEvent event) {
-        Stage stage = new Stage();
-        MultiGraph g = new MultiGraph("mg");
-        FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
-        DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
+        if(stats.getType().equals("Python")) {
+            GraphListenerXOXO x = stats.getGraph();
 
-        g.setAttribute("ui.antialias");
-        g.setAttribute("ui.quality");
+            boolean flag = false;
+            for (String fun : stats.getFunctionsGraph()) {
+                if (fun.equals(function.getName())) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                Stage stage = new Stage();
+                Graph g = new SingleGraph("Tutorial 1");
+                Map<String, ArrayList<String>> gString = stats.getGraph().graphToString(function.getName());
+                System.out.println(gString.toString());
+                g.setAttribute("ui.stylesheet", "node{\n" +
+                        "    size: 30px, 30px;\n" +
+                        "    fill-color: #f7f7f0;\n" +
+                        "    text-mode: normal; \n" +
+                        "}");
+                for (String key : gString.keySet()) {
+                    g.addNode(key).setAttribute("ui.label", key);
+                }
+                for (String key : gString.keySet()) {
+                    for (String son : gString.get(key)) {
+                        g.addEdge(key + " " + son, key, son);
+                    }
+                }
+                FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
 
-        v.enableAutoLayout();
-        FxViewPanel panel = (FxViewPanel)v.addDefaultView(false, new FxGraphRenderer());
+                v.enableAutoLayout();
+                FxViewPanel panel = (FxViewPanel) v.addDefaultView(false, new FxGraphRenderer());
 
-        gen.addSink(g);
-        gen.begin();
-        for(int i = 0 ; i < 100 ; i++)
-            gen.nextEvents();
-        gen.end();
-        gen.removeSink(g);
+                Scene scene = new Scene(panel, 800, 600);
+                stage.setScene(scene);
+                stage.show();
+            }
+        }
+    }
 
-        Scene scene = new Scene(panel, 800, 600);
-        stage.setScene(scene);
-        stage.show();
+    @FXML
+    private void generateClassGraph(ActionEvent event) {
+        if(stats.getType().equals("Python")) {
+            GraphListenerXOXO x = stats.getGraph();
+
+            boolean flag = false;
+            for (String fun : stats.getFunctionsGraph()) {
+                if (fun.equals(function.getName())) {
+                    flag = true;
+                    break;
+                }
+            }
+            if (flag) {
+                Stage stage = new Stage();
+                Graph g = new SingleGraph("Tutorial 1");
+                Map<String, ArrayList<String>> gString = stats.getGraph().graphToString(function.getName());
+                System.out.println(gString.toString());
+                g.setAttribute("ui.stylesheet", "node{\n" +
+                        "    size: 30px, 30px;\n" +
+                        "    fill-color: #f7f7f0;\n" +
+                        "    text-mode: normal; \n" +
+                        "}");
+                for (String key : gString.keySet()) {
+                    g.addNode(key).setAttribute("ui.label", key);
+                }
+                for (String key : gString.keySet()) {
+                    for (String son : gString.get(key)) {
+                        g.addEdge(key + " " + son, key, son);
+                    }
+                }
+                FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+
+                v.enableAutoLayout();
+                FxViewPanel panel = (FxViewPanel) v.addDefaultView(false, new FxGraphRenderer());
+
+                Scene scene = new Scene(panel, 800, 600);
+                stage.setScene(scene);
+                stage.show();
+            }
+        }
     }
 }

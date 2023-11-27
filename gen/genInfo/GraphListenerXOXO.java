@@ -1,3 +1,9 @@
+package genInfo;
+
+import genInfo.PythonLexer;
+import genInfo.PythonParser;
+import genInfo.PythonParserBaseListener;
+import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -49,7 +55,7 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
     private Set<Node> visited = new HashSet<>();
     //Conjunto para la implementacion del DFS
 
-    private Map<String,Node> myFunctions = new HashMap<>();
+    public Map<String,Node> myFunctions = new HashMap<>();
     //Grafo de funciones, key = NombreFuncion , value = grafo de la función
 
     private Stack<Node> currNode = new Stack<>();
@@ -101,12 +107,15 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         visited.clear();
     }
 
-
-
     @Override
     public void enterFunction_def_raw (PythonParser.Function_def_rawContext ctx) {
         depth ++;
-        Node nNode = new Node(ctx.NAME().getText() + "(" + ctx.params().getText() + ")");
+        Node nNode;
+        if(ctx.params()!=null){
+            nNode = new Node(ctx.NAME().getText() + "(" + ctx.params().getText() + ")");
+        }else{
+            nNode = new Node(ctx.NAME().getText() + "()");
+        }
         myFunctions.put(ctx.NAME().getText(),nNode);
         currNode.push(myFunctions.get(ctx.NAME().getText()));
         sons.push(new ArrayList<>());
@@ -275,7 +284,7 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         currNode.pop();
     }
 
-    private void fixGraph(Node node) {
+    public void fixGraph(Node node) {
         boolean ok;
         do {
             ok = false;
@@ -300,7 +309,7 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         DFSCreateGraph(myFunctions.get(name));
         Map<String,ArrayList<String>> ret = functionGraph;
         visited.clear();
-        functionGraph.clear();
+        //functionGraph.clear();
         return ret;
     }
 
@@ -308,26 +317,4 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
         return myFunctions.keySet();
     }
 
-
-
-    public static void main(String[] args) throws Exception {
-        PythonLexer lexer;
-        if (args.length > 0 ) {
-            lexer = new PythonLexer(CharStreams.fromFileName(args[0]));
-        }
-        else {
-            lexer = new PythonLexer(CharStreams.fromStream(System.in));
-        }
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        PythonParser parser = new PythonParser(tokens);
-        ParseTree tree = parser.file_input();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        GraphListenerXOXO graphListener = new GraphListenerXOXO();
-        walker.walk(graphListener, tree);
-        for (String key : graphListener.myFunctions.keySet()) {
-            graphListener.fixGraph(graphListener.myFunctions.get(key));
-        }
-        graphListener.myFunctionsPrint();
-        System.out.println(graphListener.myFunctions.toString());
-    }
 }

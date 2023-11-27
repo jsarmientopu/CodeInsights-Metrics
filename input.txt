@@ -9,6 +9,7 @@ class Circle:
         return pi * radius**2
 var=0
 var1=0
+vara=9
 var11=0
 var111=0
 def loco(a):

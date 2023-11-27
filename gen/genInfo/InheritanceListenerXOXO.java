@@ -1,3 +1,8 @@
+package genInfo;
+
+import genInfo.PythonLexer;
+import genInfo.PythonParser;
+import genInfo.PythonParserBaseListener;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
 import org.antlr.v4.runtime.tree.ParseTree;
@@ -82,21 +87,14 @@ public class InheritanceListenerXOXO extends PythonParserBaseListener {
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        PythonLexer lexer;
-        if (args.length > 0 ) {
-            lexer = new PythonLexer(CharStreams.fromFileName(args[0]));
+    public Map<String,ArrayList<String>> treeToString() {
+        Map<String,ArrayList<String>> tree = new HashMap<>();
+        for (String key : dictionary.keySet()) {
+            tree.put(key,new ArrayList<>());
+            for (Node node : dictionary.get(key).getNext()) {
+                tree.get(key).add(node.getContent());
+            }
         }
-        else {
-            lexer = new PythonLexer(CharStreams.fromStream(System.in));
-        }
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        PythonParser parser = new PythonParser(tokens);
-        ParseTree tree = parser.file_input();
-        ParseTreeWalker walker = new ParseTreeWalker();
-        InheritanceListenerXOXO treeListener = new InheritanceListenerXOXO();
-        walker.walk(treeListener, tree);
-        treeListener.printTree();
-        
+        return tree;
     }
 }
