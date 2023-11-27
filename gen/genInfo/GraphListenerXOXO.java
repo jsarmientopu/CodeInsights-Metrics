@@ -220,6 +220,15 @@ public class GraphListenerXOXO extends PythonParserBaseListener {
             }
             currNode.push(nNode);
         }
+        else if (ctx.star_expressions() != null) {
+            Node nNode = new Node(ctx.star_expressions().getText());
+            currNode.peek().getNext().add(nNode);
+            sons.peek().set(sons.peek().size() - 1,nNode);
+            if (currNode.peek().getContent().charAt(currNode.peek().getContent().length() - 1) != '?'){
+                currNode.pop();
+            }
+            currNode.push(nNode);
+        }
     }
 
     @Override
