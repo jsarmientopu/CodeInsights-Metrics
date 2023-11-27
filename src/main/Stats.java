@@ -76,6 +76,7 @@ public class Stats {
     public boolean getStats(){
         try{
             if(this.type.equals("Python")){
+                System.out.println("PASO1");
                 PythonLexer lexer=new PythonLexer(CharStreams.fromFileName("input.txt"));
                 CommonTokenStream tokens = new CommonTokenStream(lexer);
                 PythonParser parser = new PythonParser(tokens);
@@ -101,13 +102,19 @@ public class Stats {
                 naming = loader1.styleStats();
                 System.out.println("----------------------------");
                 this.text1= this.text;
+                System.out.println("PASO2");
                 PythonLexer lexer2=new PythonLexer(CharStreams.fromFileName("input.txt"));
                 CommonTokenStream tokens2 = new CommonTokenStream(lexer2);
                 PythonParser parser2 = new PythonParser(tokens2);
                 ExtendedVisitors visitor1 = new ExtendedVisitors();
                 visitor1.setFunctions(loader1.getFunctions());
                 visitor1.visit(parser2.file_input());
-                this.functionsGraph = executeGraph(this.text);
+                try{
+                    this.functionsGraph = executeGraph(this.text);
+                    executeClassGraph();
+                }catch (Exception e){
+
+                }
             }else{
                 Java8Lexer javaLexer=new Java8Lexer(CharStreams.fromFileName("input.txt"));
                 // Identificar al analizador léxico como fuente de tokens para el sintactico

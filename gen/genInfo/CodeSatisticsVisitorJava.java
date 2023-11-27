@@ -335,6 +335,7 @@ public class CodeSatisticsVisitorJava<T> extends Java8ParserBaseVisitor<T> {
         }
         visitChildren(ctx);
         // You can add more logic here for if statement-specific statistics
+        // You can add more logic here for if statement-specific statistics
 
         return null;
     }

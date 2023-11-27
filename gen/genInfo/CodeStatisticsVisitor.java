@@ -249,7 +249,10 @@ public class CodeStatisticsVisitor<T> extends PythonParserBaseVisitor<T> {
 
     @Override
     public T visitDotted_as_name(PythonParser.Dotted_as_nameContext ctx) {
-        String importName =visitDotted_name(ctx.dotted_name())+"="+ctx.NAME().getText();
+        String importName =((String) visitDotted_name(ctx.dotted_name()));
+        if(ctx.NAME()!=null){
+            importName+="="+ctx.NAME().getText();
+        }
         externalDependencies.add(importName);
         return null;
     }

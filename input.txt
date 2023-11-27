@@ -9,7 +9,6 @@ class Circle:
         return pi * radius**2
 var=0
 var1=0
-vara=9
 var11=0
 var111=0
 def loco(a):
@@ -21,7 +20,7 @@ def loco(a):
         print(i)
     return l*pi
 def square():
-    global var, loco
+    global var, localVar
     for i in range(0, a):
         print(i)
     for i in range(a+90):
@@ -39,6 +38,6 @@ def square():
         print(np.random(2))
         return 0
     return var*var
-def mathloco():
+def mathlPi():
     print(pi)
 square()
