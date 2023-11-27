@@ -177,7 +177,7 @@
                         <Font size="23.0" />
                      </font>
                   </Text>
-                  <Button layoutX="712.0" layoutY="304.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="84.0" text="Analizar" />
+                  <Button fx:id="generarDiagrama" layoutX="712.0" layoutY="304.0" mnemonicParsing="false" prefHeight="36.0" prefWidth="84.0" text="Analizar" />
                   <Text layoutX="32.0" layoutY="106.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Dependencias">
                      <font>
                         <Font size="23.0" />

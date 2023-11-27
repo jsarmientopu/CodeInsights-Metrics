@@ -3,6 +3,9 @@ package com.example.demo;
 import genInfo.CodeStatisticsVisitor;
 import genInfo.FunctionSats;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
@@ -13,9 +16,17 @@ import javafx.scene.layout.Pane;
 
 import javafx.event.ActionEvent;
 import javafx.scene.text.Text;
+import javafx.stage.Stage;
 import main.Stats;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CharStreams;
+import org.graphstream.algorithm.generator.DorogovtsevMendesGenerator;
+import org.graphstream.graph.implementations.MultiGraph;
+import org.graphstream.ui.fx_viewer.FxViewPanel;
+import org.graphstream.ui.fx_viewer.FxViewer;
+import org.graphstream.ui.javafx.FxGraphRenderer;
+
+import java.io.IOException;
 
 
 public class HelloController {
@@ -84,6 +95,8 @@ public class HelloController {
     private Text variablesLocal;
     @FXML
     private Text indiceEstabilidad;
+    @FXML
+    private Button generarDiagrama;
     private Stats stats;
     private FunctionSats function;
 
@@ -96,6 +109,7 @@ public class HelloController {
         seleccionLenguajes.setValue("Seleccione el lenguaje");
         Atras5.setOnAction(this::primerAtras);
         Atras6.setOnAction(this::segundoAtras);
+        generarDiagrama.setOnAction(this::generateGraph);
     }
     @FXML
     private void analizarCodigo(ActionEvent event) {
@@ -177,5 +191,30 @@ public class HelloController {
         vista1.setVisible(false);
         vista2.setVisible(true);
         vista3.setVisible(false);
+    }
+
+    @FXML
+    private void generateGraph(ActionEvent event) {
+        Stage stage = new Stage();
+        MultiGraph g = new MultiGraph("mg");
+        FxViewer v = new FxViewer(g, FxViewer.ThreadingModel.GRAPH_IN_GUI_THREAD);
+        DorogovtsevMendesGenerator gen = new DorogovtsevMendesGenerator();
+
+        g.setAttribute("ui.antialias");
+        g.setAttribute("ui.quality");
+
+        v.enableAutoLayout();
+        FxViewPanel panel = (FxViewPanel)v.addDefaultView(false, new FxGraphRenderer());
+
+        gen.addSink(g);
+        gen.begin();
+        for(int i = 0 ; i < 100 ; i++)
+            gen.nextEvents();
+        gen.end();
+        gen.removeSink(g);
+
+        Scene scene = new Scene(panel, 800, 600);
+        stage.setScene(scene);
+        stage.show();
     }
 }
