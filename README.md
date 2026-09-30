@@ -1,62 +1,86 @@
 # CodeInsights-Metrics
 
-# Manual :
-> Insight Metrics es una herramienta que busca ayudar a los desarrolladores a comprender mejor su código, por medio de métricas y visualización de flujo que permitan análizar el costo computacional de sus funciones, legibilidad del código, buenas prácticas, entre otras funcionalidades.
+## Overview
 
-El usuario tiene en su poder la InsightMetrics/v1. En esta versión beta se implemento una interfaz sencilla donde se disponen diferentes métricas que se calculan al recorrer el árbol sintáctico.
+**Insight Metrics** is a tool designed to help developers better understand their code through a variety of metrics and visualizations. It provides insights into the computational cost of functions, code readability, best practices, and other aspects of code quality.
 
-### Métricas que cálcula el programa
-> - Cantidad de lineas de código
-> - Cantidad de funciones
-> - Cantidad de condicionales
-> - Cantidad de ciclos for
-> - Cantidad de ciclos while
-> - Cantidad de variables globales
-> - Métricas de Halsted
-> - Complejidad Ciclomática
-> - Variables no usadas
-> - Visualización del diagrama de flujo del programa
-> - Visualización del diagrama de herencia del programa
-> - Dependencias usadas
-> - Duplicidad del código
+The current version, **InsightMetrics/v1**, is a beta release featuring a simple interface that provides different metrics calculated by traversing the program's syntax tree.
 
-### Herramientas Usadas
-> - ANTLR como principal herramienta para la lectura y procesamiento del código a analizar
-> - Interfaz realizada con javaFX y Scene Builder
-> - Para los grafos se hizo uso de la librería GraphStream
+### Metrics
 
+The application provides the following metrics and visualizations:
 
-> [!IMPORTANT]  
-> Las funcionalidades de InsightMetrics/v1 están soportadas para Python, algunas de ellas también en Java.
+* Lines of code
+* Number of functions
+* Number of conditional statements
+* Number of `for` loops
+* Number of `while` loops
+* Number of global variables
+* Halstead metrics
+* Cyclomatic complexity
+* Unused variables
+* Program flow diagram visualization
+* Class inheritance diagram visualization
+* Dependencies used
+* Code duplication
+
+### Technologies
+
+* **ANTLR** — Used as the main tool for reading and processing the source code being analyzed.
+* **JavaFX & Scene Builder** — Used to build the graphical user interface.
+* **GraphStream** — Used for graph generation and visualization.
+
+> [!IMPORTANT]
+> The functionalities in **InsightMetrics/v1** are primarily supported for **Python**, with some features also supporting **Java**.
 
 ---
 
+## Build and Usage
 
-## Manual de Compilación y  Uso
-1. Una vez descargado el codigo fuente, se debe hacer la insercion de distintas librerias usadas para el funcionamiento del mismo.
-   2. Antlr4
-   3. Apache-commons
-   4. Graphstream
-      5. gs-algo 2.0
-      6. gs-core 2.0
-      7. gs-ui.javafx 2.0
-\
-Para la insercion de estas se puede hacer ingresando a "modul settings" del proyecto y agregando las dependencias .jar.
-      8. javafx 21
-\
-En este caso se deben descargar los archivos correpondientes a la libreria y agregarlos en el apartado de "module setting" librerias. Así mismo, se sugiere que en las configuraciones de ejecucion se agregue la opcion de VM
-         --module-path "PATH-TO-LIBRARY" --add-modules javafx.fxml,javafx.controls,javafx.graphics
-2. Ejecute la aplicacion desde el main de javaFx.
-3. Una vez en la interfaz, copie el código que desea analizar en el panel del lado izquierdo de la ventana inicial.
-2. Seleccione el lenguaje en que está escrito su programa. De click en Analizar.
-3. Encontrará una ventana con diferentes métricas. A partir de este punto puede realizar dos búsquedas extra.
-   1. Visualizar grafo de clases del codigo fuente ingresado
-   2. Ingresar a estadisticas de funciones personalizadas.
-      1. En este apartado encontrara distintas metricas orientada a cada una de las funciones y se podra visualizar un grafo con el flujo de ejecucion de la funcion.
+### Requirements
 
+Before running the application, the following libraries must be added to the project:
 
-# Desarrolladores
+* ANTLR4
+* Apache Commons
+* GraphStream:
 
-- Juan Sebastian Sarmiento
-- Venus Baquero
-- Juan Carlos Prieto
+  * `gs-algo 2.0`
+  * `gs-core 2.0`
+  * `gs-ui-javafx 2.0`
+* JavaFX 21
+
+### Setup
+
+1. Download the source code and add the required `.jar` libraries through the project's **Module Settings**.
+
+2. For JavaFX, download the corresponding library files and add them under the project's libraries in **Module Settings**.
+
+3. It is recommended to add the following VM options to the run configuration:
+
+   ```text
+   --module-path "PATH-TO-LIBRARY" --add-modules javafx.fxml,javafx.controls,javafx.graphics
+   ```
+
+4. Run the application from the JavaFX `main` method.
+
+### Using the Application
+
+1. Once the application starts, paste the source code you want to analyze into the panel on the left side of the main window.
+
+2. Select the programming language in which the source code is written.
+
+3. Click **Analyze**.
+
+4. The application will display a window containing the different metrics calculated from the source code.
+
+5. From the metrics window, you can access two additional features:
+
+   * **Class diagram:** Visualize the class and inheritance structure of the analyzed source code.
+   * **Function statistics:** View detailed metrics for individual functions and visualize their execution flow through a graph.
+
+## Developers
+
+* Juan Sebastian Sarmiento
+* Venus Baquero
+* Juan Carlos Prieto
